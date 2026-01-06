@@ -1,6 +1,22 @@
 from gemini import Gemini
+from message_types import Message
 
+from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
+from langchain_core.prompts import MessagesPlaceholder, ChatPromptTemplate
 gemini = Gemini(model="gemini-2.5-flash")
-prompt = "2*2-2 is 2 because 2*2 is 4 and 4-2 is 2. and current president of uzb is sh.mirzyoyev. and can you solve 3-12/6"
-res = gemini.generate(prompt)
-print(res)
+messages = []
+messages.append(Message(1, "always answer within 2 not long sentences"))
+while True:
+    inp = input("ask: ")
+    if inp == 'q':
+        break
+    human = Message(2, inp)
+    messages.append(human)
+    ai = gemini.generate(messages)
+    messages.append(ai)
+    print('ai: ', ai)
+
+print(messages)
+
+
+
