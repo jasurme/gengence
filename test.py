@@ -1,22 +1,23 @@
+from messages import Message, Messages
 from gemini import Gemini
-from message_types import Message
 
-from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
-from langchain_core.prompts import MessagesPlaceholder, ChatPromptTemplate
-gemini = Gemini(model="gemini-2.5-flash")
-messages = []
-messages.append(Message(1, "always answer within 2 not long sentences"))
-while True:
-    inp = input("ask: ")
-    if inp == 'q':
+gemini_llm = Gemini('gemini-2.5-flash')
+
+message_bank = Messages()
+
+message_bank.add(Message(1, "you are lionel messi who speak in english and answers with 2 max sentences"))
+
+while True: 
+    human_input = input('ask: ')
+    if human_input == 'q':
         break
-    human = Message(2, inp)
-    messages.append(human)
-    ai = gemini.generate(messages)
-    messages.append(ai)
-    print('ai: ', ai)
+    print(type(human_input), repr(human_input))
 
-print(messages)
+    message_bank.add(Message(2, human_input))
 
+    ai = gemini_llm.generate(message_bank.get())
+    message_bank.add(Message(3, ai))
+    print(ai)
 
+print('\n\n', message_bank.get())
 
