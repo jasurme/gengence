@@ -1,18 +1,26 @@
-from dotenv import load_dotenv
+
 from google import genai
 from typing import Type, Optional
-load_dotenv()
+import json
+
 class Gemini:
-    def __init__(self, model: str, structured_config:Optional[Type] = None):
+    def __init__(self, model: str):
         self.model = model
-        self.structured_config=structured_config
         self.__initialize()
     
     def __initialize(self):
         self.gemini = genai.Client()
     
-    def generate(self, prompt):
+    def generate(self, prompt:str, pydantic_object:Optional[object]=None):
         config = {"temperature" : 1}
-        if self.structured_config:
-            config.update(self.structured_config)
-        return self.gemini.models.generate_content(model=self.model, contents=prompt, config=config).text
+        if pydantic_object:
+            additional_config = {
+                "response_mime_type": "application/json",
+                "response_json_schema": pydantic_object.model_json_schema()
+            }
+            config.update(additional_config)
+
+        res= self.gemini.models.generate_content(model=self.model, contents=prompt, config=config).text
+        if pydantic_object:
+            return json.loads(res)
+        else: return res

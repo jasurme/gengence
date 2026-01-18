@@ -20,25 +20,26 @@ class Message:
         return self._format_message()
 
 class Messages:
-    def __init__(self, message: Optional[str | List[str] | Message] = None):
+    def __init__(self, table_name: str, message: Optional[str | List[str] | Message] = None):
         self.message = message
+        self.table_name = table_name
         self._initialize()
     
     def _initialize(self):
         if self.message:
             os.makedirs("message_bank", exist_ok=True)
-            conn = sqlite3.connect("message_bank/messages.db")
+            conn = sqlite3.connect(f"message_bank/{self.table_name}.db")
             c = conn.cursor()
-            c.execute("CREATE TABLE IF NOT EXISTS messages (message TEXT)")
+            c.execute(f"CREATE TABLE IF NOT EXISTS {self.table_name} (message TEXT)")
             conn.commit()
-            print('initialized messages db')
+            print(f'initialized {self.table_name} db')
             conn.close()
     
     def add(self, message: str | Message | List[str]):
         os.makedirs('message_bank', exist_ok=True)
-        conn = sqlite3.connect("message_bank/messages.db")
+        conn = sqlite3.connect(f"message_bank/{self.table_name}.db")
         c = conn.cursor()
-        c.execute("CREATE TABLE IF NOT EXISTS messages (message TEXT)")
+        c.execute(f"CREATE TABLE IF NOT EXISTS {self.table_name} (message TEXT)")
     
         if isinstance(message,Message):
             message = str(message)
@@ -47,19 +48,18 @@ class Messages:
                 self.add(msg)
         else: raise TypeError("incorrect message type. should be either str, Message obj or list[str]")
 
-        c.execute("INSERT into messages (message) values (?)", (message, ))
+        c.execute(f"INSERT into {self.table_name} (message) values (?)", (message, ))
         conn.commit()
         print('successfully added')
         conn.close()
     
     def _fetch_all(self):
         os.makedirs('message_bank', exist_ok=True)
-        conn = sqlite3.connect("message_bank/messages.db")
+        conn = sqlite3.connect(f"message_bank/{self.table_name}.db")
         c = conn.cursor()
-        c.execute("CREATE TABLE IF NOT EXISTS messages (message TEXT)")
-        c.execute("select * from messages")
+        c.execute(f"CREATE TABLE IF NOT EXISTS {self.table_name} (message TEXT)")
+        c.execute(f"select * from {self.table_name}")
         rows = c.fetchall()
-        print('successfully got all messages in db')
         conn.close()
         msgs = ""
         if rows:
