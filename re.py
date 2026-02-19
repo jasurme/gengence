@@ -12,17 +12,6 @@ from typing import Union, Any, TypedDict, Annotated
 import operator
 gemini = ChatGoogleGenerativeAI(model="gemini-2.5-flash")
 
-class AgentAction(BaseModel):
-    tool:str
-    tool_input:Any
-    log: str = Field(description='explain why you are doing what you are doing')
-
-class AgentFinish(BaseModel):
-    output: Any
-    log: str = Field(description='explain what you have done')
-
-class AgentToolAction(BaseModel):
-    tool: Union[AgentAction, AgentFinish]
 
 # class AgentLanggraph(TypedDict):
 #     input: str
@@ -42,19 +31,6 @@ def get_current_time(format=""):
 
 tools = [ tavily_tool, get_current_time]
 
-gemini = Gemini(model="gemini-2.5-flash")
-
-question = 'how many days have been since gpt-5 launch. first know current time and find gpt5 launch date'
-
-prompt = f"""
-    you have following tools: tavily_tool(parameters: content that is searched) and get_current_time tool(parameter:  format(strftime)).
-      here is the question: {question}. Use the following format:  
-      Question: the input question you must answer 
-      Thought: you should always think about what to do 
-      Action: the action to take, should be one of [tool_names]
-    And you break down question into tiny steps and call tools step by step and once you reach final answer that answers user question, output it to user in friendly response text
-    for time related questions, first if available use get curent time tool to know current time and do the rest of what question asks
-    """
 while True:
    
     response = gemini.generate(prompt=prompt, pydantic_object=AgentToolAction)

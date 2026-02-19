@@ -16,6 +16,7 @@ gpt = ChatOpenAI(model='gpt-4o-mini')
 
 @tool
 def get_current_date(format: str="%Y-%m-%d %H-%M-%S"):
+    'get time'
     now = datetime.now()
     return now.strftime(format)
 
